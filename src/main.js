@@ -24,8 +24,11 @@ class ShieldbiterApp {
       <header class="app-header">
         <div class="header-content">
           <div class="brand">
-            <h1 class="brand-title">Shieldbiter</h1>
-            <span class="brand-subtitle">Lyre Companion</span>
+            <img src="./shieldbiter-logo.png" alt="Shieldbiter" class="brand-logo" />
+            <div class="brand-text">
+              <h1 class="brand-title">Shieldbiter</h1>
+              <span class="brand-subtitle">Lyre Companion</span>
+            </div>
           </div>
           <div id="key-selector-mount"></div>
         </div>
@@ -65,6 +68,16 @@ class ShieldbiterApp {
         <div class="footer-content">
           <span class="footer-brand">A companion for instruments by</span>
           <span class="footer-maker">Shieldbiter Viking Crafts</span>
+          <div class="footer-links">
+            <a href="https://shieldbitercrafts.store/" target="_blank" rel="noopener" class="footer-link" title="Shieldbiter Store">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <span>Store</span>
+            </a>
+            <a href="https://www.facebook.com/ShieldbitrVikingCrafts" target="_blank" rel="noopener" class="footer-link" title="Facebook">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+              <span>Facebook</span>
+            </a>
+          </div>
         </div>
         <div class="knotwork-border"></div>
       </footer>
