@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Shieldbiter Lyre</string>
+    <string name="title_activity_main">Shieldbiter Lyre</string>
+    <string name="package_name">com.shieldbiter.lyrecompanion</string>
+    <string name="custom_url_scheme">com.shieldbiter.lyrecompanion</string>
+</resources>
