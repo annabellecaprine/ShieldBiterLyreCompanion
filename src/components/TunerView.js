@@ -11,6 +11,7 @@ export class TunerView {
     constructor(container, options = {}) {
         this.container = container;
         this.currentKey = options.initialKey || 'C';
+        this.currentMode = options.initialMode || 'major';
         this.pitchDetector = null;
         this.isActive = false;
         this.currentStringTarget = null; // which string the user is targeting
@@ -89,7 +90,7 @@ export class TunerView {
     }
 
     updateStringGuide() {
-        const stringData = getStringFrequencies(this.currentKey);
+        const stringData = getStringFrequencies(this.currentKey, this.currentMode);
         const container = this.container.querySelector('#string-guide-buttons');
         if (!container) return;
 
@@ -289,6 +290,12 @@ export class TunerView {
 
     setKey(key) {
         this.currentKey = key;
+        this.currentStringTarget = null;
+        this.updateStringGuide();
+    }
+
+    setMode(mode) {
+        this.currentMode = mode;
         this.currentStringTarget = null;
         this.updateStringGuide();
     }

@@ -1,47 +1,73 @@
 /**
- * KeySelector - Dropdown for selecting the tuning key.
+ * KeySelector - Dropdowns for selecting the tuning key and mode.
  */
 
-import { KEY_LIST } from '../data/chordData.js';
+import { KEY_LIST, MODE_LIST, MODE_LABELS } from '../data/chordData.js';
 
 export class KeySelector {
-    constructor(container, options = {}) {
-        this.container = container;
-        this.currentKey = options.initialKey || 'C';
-        this.onChange = options.onChange || (() => { });
-        this.render();
-    }
+  constructor(container, options = {}) {
+    this.container = container;
+    this.currentKey = options.initialKey || 'C';
+    this.currentMode = options.initialMode || 'major';
+    this.onChange = options.onChange || (() => { });
+    this.onModeChange = options.onModeChange || (() => { });
+    this.render();
+  }
 
-    render() {
-        const optionsHtml = KEY_LIST.map(key => {
-            const selected = key === this.currentKey ? 'selected' : '';
-            return `<option value="${key}" ${selected}>${key} MAJOR</option>`;
-        }).join('');
+  render() {
+    const keyOptionsHtml = KEY_LIST.map(key => {
+      const selected = key === this.currentKey ? 'selected' : '';
+      return `<option value="${key}" ${selected}>${key}</option>`;
+    }).join('');
 
-        this.container.innerHTML = `
+    const modeOptionsHtml = MODE_LIST.map(mode => {
+      const selected = mode === this.currentMode ? 'selected' : '';
+      return `<option value="${mode}" ${selected}>${MODE_LABELS[mode]}</option>`;
+    }).join('');
+
+    this.container.innerHTML = `
       <div class="key-selector">
-        <label class="key-selector-label" for="key-select">
+        <label class="key-selector-label">
           <span class="label-icon">⟡</span>
           <span>Tuning</span>
         </label>
-        <div class="select-wrapper">
-          <select id="key-select" class="key-select">
-            ${optionsHtml}
-          </select>
-          <span class="select-arrow">▾</span>
+        <div class="select-group">
+          <div class="select-wrapper">
+            <select id="key-select" class="key-select">
+              ${keyOptionsHtml}
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
+          <div class="select-wrapper">
+            <select id="mode-select" class="key-select">
+              ${modeOptionsHtml}
+            </select>
+            <span class="select-arrow">▾</span>
+          </div>
         </div>
       </div>
     `;
 
-        this.container.querySelector('#key-select').addEventListener('change', (e) => {
-            this.currentKey = e.target.value;
-            this.onChange(this.currentKey);
-        });
-    }
+    this.container.querySelector('#key-select').addEventListener('change', (e) => {
+      this.currentKey = e.target.value;
+      this.onChange(this.currentKey);
+    });
 
-    setKey(key) {
-        this.currentKey = key;
-        const select = this.container.querySelector('#key-select');
-        if (select) select.value = key;
-    }
+    this.container.querySelector('#mode-select').addEventListener('change', (e) => {
+      this.currentMode = e.target.value;
+      this.onModeChange(this.currentMode);
+    });
+  }
+
+  setKey(key) {
+    this.currentKey = key;
+    const select = this.container.querySelector('#key-select');
+    if (select) select.value = key;
+  }
+
+  setMode(mode) {
+    this.currentMode = mode;
+    const select = this.container.querySelector('#mode-select');
+    if (select) select.value = mode;
+  }
 }

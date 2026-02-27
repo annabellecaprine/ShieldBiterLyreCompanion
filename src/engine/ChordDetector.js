@@ -10,10 +10,11 @@ import { TUNINGS } from '../data/chordData.js';
  * 
  * @param {string} currentKey - The current tuning key (e.g., "C", "G#")
  * @param {number[]} stringStates - Array of 6 values, 1=open, 0=muted
+ * @param {string} mode - The current tuning mode (e.g., "major", "dorian")
  * @returns {{ name: string, degree: string, type: string } | null} - The matched chord or null
  */
-export function detectChord(currentKey, stringStates) {
-    const tuning = TUNINGS[currentKey];
+export function detectChord(currentKey, stringStates, mode = 'major') {
+    const tuning = TUNINGS[mode]?.[currentKey];
     if (!tuning) return null;
 
     for (const chord of tuning.chords) {

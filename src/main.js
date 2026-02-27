@@ -14,6 +14,7 @@ import { resumeAudio } from './engine/AudioEngine.js';
 class ShieldbiterApp {
   constructor() {
     this.currentKey = 'C';
+    this.currentMode = 'major';
     this.currentTab = 'chords'; // 'chords' or 'tuner'
     this.init();
   }
@@ -88,7 +89,9 @@ class ShieldbiterApp {
       document.querySelector('#key-selector-mount'),
       {
         initialKey: this.currentKey,
+        initialMode: this.currentMode,
         onChange: (key) => this.onKeyChange(key),
+        onModeChange: (mode) => this.onModeChange(mode),
       }
     );
 
@@ -96,6 +99,7 @@ class ShieldbiterApp {
       document.querySelector('#lyre-mount'),
       {
         initialKey: this.currentKey,
+        initialMode: this.currentMode,
         onStateChange: (states) => this.onStringStateChange(states),
       }
     );
@@ -104,6 +108,7 @@ class ShieldbiterApp {
       document.querySelector('#chord-reference-mount'),
       {
         initialKey: this.currentKey,
+        initialMode: this.currentMode,
         onChordSelect: (pattern, name) => this.onChordSelect(pattern, name),
       }
     );
@@ -112,6 +117,7 @@ class ShieldbiterApp {
       document.querySelector('#tuner-mount'),
       {
         initialKey: this.currentKey,
+        initialMode: this.currentMode,
       }
     );
 
@@ -167,8 +173,19 @@ class ShieldbiterApp {
     this.onStringStateChange(states);
   }
 
+  onModeChange(mode) {
+    this.currentMode = mode;
+    this.lyreVisual.setMode(mode);
+    this.chordReference.setMode(mode);
+    this.tunerView.setMode(mode);
+
+    // Re-detect chord with current pattern
+    const states = this.lyreVisual.stringStates;
+    this.onStringStateChange(states);
+  }
+
   onStringStateChange(states) {
-    const result = detectChord(this.currentKey, states);
+    const result = detectChord(this.currentKey, states, this.currentMode);
 
     if (result) {
       this.lyreVisual.setChordDisplay(result.name, result.type);

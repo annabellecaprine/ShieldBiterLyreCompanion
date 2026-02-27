@@ -234,6 +234,12 @@ body {
   gap: 0.75rem;
 }
 
+.select-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .key-selector-label {
   display: flex;
   align-items: center;

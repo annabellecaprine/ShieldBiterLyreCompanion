@@ -1,21 +1,24 @@
 /**
- * ChordReference - Displays all chords for the current key.
+ * ChordReference - Displays all chords for the current key and mode.
  */
 
-import { TUNINGS } from '../data/chordData.js';
+import { TUNINGS, MODE_LABELS } from '../data/chordData.js';
 
 export class ChordReference {
     constructor(container, options = {}) {
         this.container = container;
         this.currentKey = options.initialKey || 'C';
+        this.currentMode = options.initialMode || 'major';
         this.onChordSelect = options.onChordSelect || (() => { });
         this.activeChordName = null;
         this.render();
     }
 
     render() {
-        const tuning = TUNINGS[this.currentKey];
+        const tuning = TUNINGS[this.currentMode]?.[this.currentKey];
         if (!tuning) return;
+
+        const modeLabel = MODE_LABELS[this.currentMode] || this.currentMode;
 
         const chordsHtml = tuning.chords.map(chord => {
             const isActive = chord.name === this.activeChordName;
@@ -40,7 +43,7 @@ export class ChordReference {
       <div class="chord-reference">
         <h2 class="chord-reference-title">
           <span class="title-decoration">◆</span>
-          Chords in ${this.currentKey} Major
+          Chords in ${this.currentKey} ${modeLabel}
           <span class="title-decoration">◆</span>
         </h2>
         <div class="chord-grid">
@@ -62,6 +65,12 @@ export class ChordReference {
 
     setKey(key) {
         this.currentKey = key;
+        this.activeChordName = null;
+        this.render();
+    }
+
+    setMode(mode) {
+        this.currentMode = mode;
         this.activeChordName = null;
         this.render();
     }

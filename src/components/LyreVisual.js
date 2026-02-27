@@ -7,19 +7,20 @@ import { getStringFrequencies } from '../data/chordData.js';
 import { pluckString, strumChord, resumeAudio } from '../engine/AudioEngine.js';
 
 export class LyreVisual {
-    constructor(container, options = {}) {
-        this.container = container;
-        this.currentKey = options.initialKey || 'C';
-        this.stringStates = [1, 0, 1, 0, 1, 0]; // Default: I chord pattern
-        this.onStateChange = options.onStateChange || (() => { });
-        this.stringData = [];
+  constructor(container, options = {}) {
+    this.container = container;
+    this.currentKey = options.initialKey || 'C';
+    this.currentMode = options.initialMode || 'major';
+    this.stringStates = [1, 0, 1, 0, 1, 0]; // Default: I/i chord pattern
+    this.onStateChange = options.onStateChange || (() => { });
+    this.stringData = [];
 
-        this.render();
-        this.updateStrings();
-    }
+    this.render();
+    this.updateStrings();
+  }
 
-    render() {
-        this.container.innerHTML = `
+  render() {
+    this.container.innerHTML = `
       <div class="lyre-visual" id="lyre-visual">
         <div class="lyre-body">
           <div class="lyre-yoke">
@@ -51,23 +52,23 @@ export class LyreVisual {
       </div>
     `;
 
-        // Bind strum buttons
-        this.container.querySelector('#strum-down').addEventListener('click', () => this.strum('down'));
-        this.container.querySelector('#strum-up').addEventListener('click', () => this.strum('up'));
-    }
+    // Bind strum buttons
+    this.container.querySelector('#strum-down').addEventListener('click', () => this.strum('down'));
+    this.container.querySelector('#strum-up').addEventListener('click', () => this.strum('up'));
+  }
 
-    updateStrings() {
-        this.stringData = getStringFrequencies(this.currentKey);
-        const container = this.container.querySelector('#strings-container');
-        container.innerHTML = '';
+  updateStrings() {
+    this.stringData = getStringFrequencies(this.currentKey, this.currentMode);
+    const container = this.container.querySelector('#strings-container');
+    container.innerHTML = '';
 
-        this.stringData.forEach((strData, index) => {
-            const isOpen = this.stringStates[index] === 1;
-            const stringEl = document.createElement('div');
-            stringEl.className = `lyre-string ${isOpen ? 'string-open' : 'string-muted'}`;
-            stringEl.dataset.index = index;
+    this.stringData.forEach((strData, index) => {
+      const isOpen = this.stringStates[index] === 1;
+      const stringEl = document.createElement('div');
+      stringEl.className = `lyre-string ${isOpen ? 'string-open' : 'string-muted'}`;
+      stringEl.dataset.index = index;
 
-            stringEl.innerHTML = `
+      stringEl.innerHTML = `
         <span class="string-note-top">${strData.note}</span>
         <div class="string-line-wrapper">
           <div class="string-line"></div>
@@ -76,62 +77,68 @@ export class LyreVisual {
         <span class="string-state">${isOpen ? 'O' : 'X'}</span>
       `;
 
-            stringEl.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.toggleString(index);
-            });
+      stringEl.addEventListener('click', (e) => {
+        e.preventDefault();
+        this.toggleString(index);
+      });
 
-            container.appendChild(stringEl);
-        });
+      container.appendChild(stringEl);
+    });
+  }
+
+  toggleString(index) {
+    resumeAudio();
+    this.stringStates[index] = this.stringStates[index] === 1 ? 0 : 1;
+
+    // If string is now open, play it
+    if (this.stringStates[index] === 1) {
+      pluckString(this.stringData[index].frequency);
     }
 
-    toggleString(index) {
-        resumeAudio();
-        this.stringStates[index] = this.stringStates[index] === 1 ? 0 : 1;
+    this.updateStrings();
+    this.onStateChange([...this.stringStates]);
+  }
 
-        // If string is now open, play it
-        if (this.stringStates[index] === 1) {
-            pluckString(this.stringData[index].frequency);
-        }
+  setPattern(pattern) {
+    this.stringStates = [...pattern];
+    this.updateStrings();
+    this.onStateChange([...this.stringStates]);
+  }
 
-        this.updateStrings();
-        this.onStateChange([...this.stringStates]);
-    }
+  setKey(key) {
+    this.currentKey = key;
+    this.updateStrings();
+    this.onStateChange([...this.stringStates]);
+  }
 
-    setPattern(pattern) {
-        this.stringStates = [...pattern];
-        this.updateStrings();
-        this.onStateChange([...this.stringStates]);
-    }
+  setMode(mode) {
+    this.currentMode = mode;
+    this.updateStrings();
+    this.onStateChange([...this.stringStates]);
+  }
 
-    setKey(key) {
-        this.currentKey = key;
-        this.updateStrings();
-        this.onStateChange([...this.stringStates]);
-    }
+  strum(direction = 'down') {
+    resumeAudio();
+    const freqs = this.stringData.map((str, i) => ({
+      frequency: str.frequency,
+      isOpen: this.stringStates[i] === 1
+    }));
+    strumChord(freqs, 60, direction);
 
-    strum(direction = 'down') {
-        resumeAudio();
-        const freqs = this.stringData.map((str, i) => ({
-            frequency: str.frequency,
-            isOpen: this.stringStates[i] === 1
-        }));
-        strumChord(freqs, 60, direction);
+    // Animate strings
+    const stringEls = this.container.querySelectorAll('.lyre-string.string-open');
+    stringEls.forEach((el, i) => {
+      setTimeout(() => {
+        el.classList.add('string-vibrating');
+        setTimeout(() => el.classList.remove('string-vibrating'), 600);
+      }, i * 60);
+    });
+  }
 
-        // Animate strings
-        const stringEls = this.container.querySelectorAll('.lyre-string.string-open');
-        stringEls.forEach((el, i) => {
-            setTimeout(() => {
-                el.classList.add('string-vibrating');
-                setTimeout(() => el.classList.remove('string-vibrating'), 600);
-            }, i * 60);
-        });
-    }
-
-    setChordDisplay(name, type = '') {
-        const nameEl = this.container.querySelector('#chord-name');
-        const typeEl = this.container.querySelector('#chord-type');
-        if (nameEl) nameEl.textContent = name || '—';
-        if (typeEl) typeEl.textContent = type || '';
-    }
+  setChordDisplay(name, type = '') {
+    const nameEl = this.container.querySelector('#chord-name');
+    const typeEl = this.container.querySelector('#chord-type');
+    if (nameEl) nameEl.textContent = name || '—';
+    if (typeEl) typeEl.textContent = type || '';
+  }
 }
